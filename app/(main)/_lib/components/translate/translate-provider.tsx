@@ -10,7 +10,6 @@ import TranslateForm from "./translate-form";
 import { useTranslateForm } from "./useTranslateForm";
 
 interface TranslateProviderProps {
-  //   children: ReactNode;
   languages: TranslationLanguages;
 }
 

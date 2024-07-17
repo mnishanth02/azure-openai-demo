@@ -4,7 +4,7 @@ import React from "react";
 import { FileAudio, Globe, ImageIcon, MessageSquare, Mic } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ServiceCard = ({ title, description, icon, route }: any) => (
   <Card className="flex min-h-[250px] flex-col justify-between">
@@ -59,10 +59,10 @@ const ModernHomePage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <header className="mb-12 text-center">
+      <section className="mb-12 text-center">
         <h1 className="mb-4 text-4xl font-bold">AI-Powered Language Services</h1>
         <p className="text-xl text-gray-600">Explore our suite of advanced language processing tools</p>
-      </header>
+      </section>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {services.map((service, index) => (

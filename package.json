@@ -14,6 +14,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@azure/openai": "1.0.0-beta.12",
     "@hookform/resolvers": "^3.9.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@radix-ui/react-accordion": "^1.2.0",

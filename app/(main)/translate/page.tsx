@@ -1,5 +1,3 @@
-import React from "react";
-
 import { LANGUAGE_ENDPOINT } from "@/lib/constants";
 
 import TranslateProvider from "../_lib/components/translate/translate-provider";

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { Loader2, Mic } from "lucide-react";
-import { Controller, useFormContext } from "react-hook-form";
+import React, { useEffect, useRef, useState } from "react";
+import { AudioLines, Mic, MicOff, Volume2 } from "lucide-react";
+import { Controller } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,59 +16,96 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { TranslateFormType } from "../../schema";
 import { TranslationLanguages } from "../../types";
+import { useTranslateForm } from "./useTranslateForm";
 
 type Props = {
   languages: TranslationLanguages;
 };
+
+const mimeType = "audio/webm";
 const TranslateForm = ({ languages }: Props) => {
+  const { isPending, onUploadAudio, methods } = useTranslateForm();
+
   const {
     control,
-    formState: { errors, defaultValues },
-  } = useFormContext<TranslateFormType>();
+    getValues,
+    setValue,
+    formState: { defaultValues },
+  } = methods;
 
-  const [inputText, setInputText] = useState("");
-  const [translatedText, setTranslatedText] = useState("");
-  const [isRecording, setIsRecording] = useState(false);
-  const [isTranslating, setIsTranslating] = useState(false);
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const [audioChunk, setAudioChunk] = useState<Blob[]>([]);
+  const [permission, setPermission] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [recordingStatus, setRecordingStatus] = useState<"recording" | "inactive">("inactive");
 
-  const handleTextInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputText(event.target.value);
-  };
-
-  const handleTranslate = async () => {
-    if (!inputText.trim()) return;
-
-    setIsTranslating(true);
-    // Simulating API call for translation
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setTranslatedText(`Translated: ${inputText}`);
-    } catch (error) {
-      console.error("Translation error:", error);
-    } finally {
-      setIsTranslating(false);
+  useEffect(() => {
+    getMicrophonePermission();
+  }, []);
+  const getMicrophonePermission = async () => {
+    if ("MediaRecorder" in window) {
+      try {
+        const streamData = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        setPermission(true);
+        setStream(streamData);
+      } catch (error: any) {
+        toast.error(`Microphone - ${error.message}`);
+      }
+    } else {
+      alert("Your browser does not support the MediaRecorder API");
     }
   };
 
-  const handleVoiceInput = async () => {
-    setIsRecording(true);
-    // Simulating voice recording and translation
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const simulatedVoiceInput = "This is a voice input simulation.";
-      setInputText(simulatedVoiceInput);
-      setTranslatedText(`Translated: ${simulatedVoiceInput}`);
-    } catch (error) {
-      console.error("Voice input error:", error);
-    } finally {
-      setIsRecording(false);
-    }
+  const handlePlayAudio = async () => {
+    const synth = window.speechSynthesis;
+
+    const output = getValues("output");
+    if (!output || !synth) return;
+
+    const wordsToSay = new SpeechSynthesisUtterance(output);
+    synth.speak(wordsToSay);
+  };
+
+  const startRecording = async () => {
+    if (stream === null || isPending) return;
+
+    setRecordingStatus("recording");
+
+    const media = new MediaRecorder(stream, { mimeType });
+    mediaRecorder.current = media;
+    mediaRecorder.current.start();
+
+    let localAudioChunks: Blob[] = [];
+
+    mediaRecorder.current.ondataavailable = (event) => {
+      if (typeof event.data === "undefined") return;
+      if (event.data.size === 0) return;
+
+      localAudioChunks.push(event.data);
+    };
+    setAudioChunk(localAudioChunks);
+  };
+  const stopReording = async () => {
+    if (mediaRecorder.current === null || isPending) return;
+    setRecordingStatus("inactive");
+    mediaRecorder.current.stop();
+
+    mediaRecorder.current.onstop = () => {
+      const audioBlob = new Blob(audioChunk, { type: mimeType });
+      // uploadAudio(audioBlob);
+      const file = new File([audioBlob], mimeType, { type: mimeType });
+      onUploadAudio(file);
+      setAudioChunk([]);
+    };
   };
 
   return (
     <div className="container mx-auto mt-6 max-w-6xl p-2">
+      <section className="mb-12 text-center">
+        <h2 className="mb-4 text-3xl font-bold">Translation Service</h2>
+        <p className="text-lg text-secondary-foreground/60">Translate text between multiple languages with ease.</p>
+      </section>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Left Section - Input */}
         <div className="flex flex-col gap-2">
@@ -106,9 +144,21 @@ const TranslateForm = ({ languages }: Props) => {
             <CardContent className="p-4">
               <div className="mb-2 flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Input</h2>
-                <Button variant="outline" size="icon" type="button" onClick={handleVoiceInput} disabled={isRecording}>
-                  {isRecording ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
-                </Button>
+                {!permission && (
+                  <Button variant="outline" size="sm" type="button" onClick={getMicrophonePermission}>
+                    <MicOff className="mr-2 h-4 w-4 text-red-500" /> Get Microphone
+                  </Button>
+                )}
+                {permission && recordingStatus === "inactive" && !isPending && (
+                  <Button variant="outline" size="sm" type="button" onClick={startRecording}>
+                    <Mic className="mr-2 h-4 w-4" /> Speak
+                  </Button>
+                )}
+                {recordingStatus === "recording" && (
+                  <Button variant="outline" size="sm" type="button" onClick={stopReording}>
+                    <AudioLines className="mr-2 h-4 w-4 text-green-500" /> Stop
+                  </Button>
+                )}
               </div>
               <Controller
                 name="input"
@@ -118,21 +168,12 @@ const TranslateForm = ({ languages }: Props) => {
                   <Textarea {...field} placeholder="Enter text to translate..." className="min-h-80 w-full" />
                 )}
               />
-              {/* <Textarea
-                placeholder="Enter text to translate..."
-                value={inputText}
-                onChange={handleTextInput}
-                className="mb-2 min-h-64 w-full"
-              /> */}
-              {/* <Button onClick={handleTranslate} disabled={isTranslating || !inputText.trim()} className="mt-5 w-full">
-                {isTranslating ? "Translating..." : "Translate"}
-              </Button> */}
             </CardContent>
           </Card>
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="flex justify-end">
+          <div className="flex justify-start md:justify-end">
             <Controller
               name={"outputLanguage"}
               control={control}
@@ -165,10 +206,20 @@ const TranslateForm = ({ languages }: Props) => {
             />
           </div>
 
-          {/* Right Section - Output */}
           <Card className="col-span-1 min-h-[400px]">
             <CardContent className="p-4">
-              <h2 className="mb-3 text-lg font-semibold">Translation</h2>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Translation</h2>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  type="button"
+                  onClick={handlePlayAudio}
+                  disabled={!getValues("output")}
+                >
+                  <Volume2 className="h-4 w-4" />
+                </Button>
+              </div>
               <Controller
                 name="output"
                 control={control}
