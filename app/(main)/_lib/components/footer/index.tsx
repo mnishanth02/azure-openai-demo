@@ -2,7 +2,7 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="my-10 text-center text-gray-500">
+    <footer className="mb-4 text-center">
       <p>© 2024 AI Language Services. All rights reserved.</p>
     </footer>
   );

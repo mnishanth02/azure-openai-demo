@@ -8,9 +8,13 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
-    DATABASE_URL: z.string().url(),
-    GOOGLE_CLIENT_ID: z.string().min(1),
-    GOOGLE_CLIENT_SECRET: z.string().min(1),
+    DATABASE_URL: z.string().min(1),
+    AZURE_TEXT_TRANSLATION: z.string().min(1),
+    AZURE_TEXT_TRANSLATION_KEY: z.string().min(1),
+    AZURE_TEXT_LOCATION: z.string().min(1),
+    AZURE_API_KEY: z.string().min(1),
+    AZURE_ENDPOINT: z.string().min(1),
+    AZURE_DEPLOYMENT_NAME: z.string().min(1)
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
