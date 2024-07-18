@@ -59,16 +59,13 @@ jobs:
           AZURE_DEPLOYMENT_NAME: ${{ secrets.AZURE_DEPLOYMENT_NAME }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
-      - name: Copy static files
+      - name: Prepare for deployment
         run: |
           cp -R ./public ./.next/standalone/public
           cp -R ./.next/static ./.next/standalone/.next/static
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: app
-          path: ./.next/standalone
+          cp ./app/api/transcribeAudio/route.ts ./.next/standalone/app/api/transcribeAudio/route.ts
+          cp ./next.config.mjs ./.next/standalone/next.config.mjs
+          cp ./package.json ./.next/standalone/package.json
 
       - name: Deploy to Azure Static Web Apps
         id: builddeploy
@@ -77,9 +74,9 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_PEBBLE_0E7666100 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "/"
-          api_location: "api" # If you have an API, otherwise leave as ""
-          output_location: ".next" # Changed from "out" to ".next"
+          app_location: ".next/standalone"
+          api_location: "app/api"
+          output_location: ""
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
