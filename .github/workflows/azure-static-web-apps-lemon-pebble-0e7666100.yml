@@ -45,7 +45,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install  --legacy-peer-deps --frozen-lockfile --verbose
+        run: pnpm install --frozen-lockfile --prefer-offline --strict-peer-dependencies=false --verbose
 
       - name: Build Next.js app
         run: pnpm run build
