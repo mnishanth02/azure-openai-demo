@@ -63,9 +63,6 @@ jobs:
         run: |
           cp -R ./public ./.next/standalone/public
           cp -R ./.next/static ./.next/standalone/.next/static
-          cp ./app/api/transcribeAudio/route.ts ./.next/standalone/app/api/transcribeAudio/route.ts
-          cp ./next.config.mjs ./.next/standalone/next.config.mjs
-          cp ./package.json ./.next/standalone/package.json
 
       - name: Deploy to Azure Static Web Apps
         id: builddeploy
@@ -75,7 +72,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: ".next/standalone"
-          api_location: "app/api"
+          api_location: ""
           output_location: ""
 
   close_pull_request_job:
