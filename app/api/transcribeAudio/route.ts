@@ -10,10 +10,7 @@ export async function POST(request: NextRequest) {
   console.log("File in server route ->>", file);
 
   if (file.size === 0) {
-    return {
-      sender: "",
-      response: "No audio file provided",
-    };
+    return NextResponse.json({ sender: "", response: "No audio file provided" }, { status: 404 });
   }
   const arrayBuffer = await file.arrayBuffer();
   const audio = new Uint8Array(arrayBuffer);
