@@ -25,14 +25,30 @@ jobs:
         with:
           node-version: "20" # This will use the latest 20.x version
 
-      - name: Clear npm cache
-        run: npm cache clean --force
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8 # Use the latest version of pnpm 8.x
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: npm ci --verbose
+        run: pnpm install --frozen-lockfile --verbose
 
       - name: Build Next.js app
-        run: npm run build --verbose
+        run: pnpm run build --verbose
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           AZURE_TEXT_TRANSLATION: ${{ secrets.AZURE_TEXT_TRANSLATION }}
