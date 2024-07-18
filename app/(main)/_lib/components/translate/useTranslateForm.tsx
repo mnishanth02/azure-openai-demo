@@ -6,7 +6,20 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { TranslateFormSchema, TranslateFormType } from "../../schema";
-import { transcribeAudio, translate } from "./translate-action";
+import { translate } from "./translate-action";
+
+const transcribeAudio = async (file: Blob) => {
+  const formData = new FormData();
+  formData.append("audio", file);
+
+  const response = await fetch("/api/transcribeAudio", {
+    method: "POST",
+    body: formData,
+  });
+
+  return await response.json();
+  // return "testing 1234";
+};
 
 export const useTranslateForm = () => {
   const methods = useForm<TranslateFormType>({
@@ -20,29 +33,32 @@ export const useTranslateForm = () => {
     mode: "onChange",
   });
 
-  const { mutate, isPending } = useMutation<any, Error, TranslateFormType>({
+  const { mutate, isPending: isTranslatePending } = useMutation<any, Error, TranslateFormType>({
     mutationFn: translate,
   });
-  const { mutate: transcribeAudioMutate, isPending: transcribeAudioPending } = useMutation<any, Error, Blob>({
+  const { mutate: transcribeAudioMutate, isPending: isTranscribeAudioPending } = useMutation<any, Error, Blob>({
     mutationFn: transcribeAudio,
   });
 
   const onSubmit = (values: TranslateFormType) => {
     mutate(values, {
       onSuccess: (data) => {
-        methods.setValue("output", data.output);
+        methods.setValue("output", data.output, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+      },
+      onError: (data) => {
+        toast.error(data.message);
       },
     });
   };
   const onUploadAudio = (file: Blob) => {
-    console.log("INtial File->>", file);
-
     transcribeAudioMutate(file, {
       onSuccess: (data) => {
         console.log("Data in success->", data);
+        if (data?.text) {
+          methods.setValue("input", data.text);
+        }
 
-        toast.success("Transcribed");
-        // methods.setValue("output", data?.text); // validate the data.text
+        // toast.success("Transcribed");
       },
       onError: (error) => {
         toast.error(error.message);
@@ -55,7 +71,8 @@ export const useTranslateForm = () => {
   return {
     methods,
     onHandleSubmit,
-    isPending,
+    isTranslatePending,
     onUploadAudio,
+    isTranscribeAudioPending,
   };
 };

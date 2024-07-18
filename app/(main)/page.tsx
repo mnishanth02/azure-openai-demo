@@ -35,25 +35,25 @@ const ModernHomePage = () => {
       title: "Text to Speech",
       description: "Convert your text into natural-sounding speech.",
       icon: <MessageSquare className="h-6 w-6" />,
-      route: "/text-to-speech",
+      route: "/speech",
     },
     {
       title: "Text to Image",
       description: "Generate unique images from textual descriptions.",
       icon: <ImageIcon className="h-6 w-6" />,
-      route: "/text-to-image",
+      route: "/image",
     },
     {
       title: "Audio to Text",
       description: "Transcribe audio files into text with high accuracy.",
       icon: <FileAudio className="h-6 w-6" />,
-      route: "/audio-to-text",
+      route: "/audio",
     },
     {
       title: "Voice to Text",
       description: "Convert spoken words into written text in real-time.",
       icon: <Mic className="h-6 w-6" />,
-      route: "/voice-to-text",
+      route: "/voice",
     },
   ];
 

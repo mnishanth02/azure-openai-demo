@@ -44,25 +44,3 @@ export async function translate(formData: TranslateFormType) {
     output: data[0].translations[0].text,
   };
 }
-
-export async function transcribeAudio(file: Blob) {
-  console.log("File->><", file);
-
-  if (file.size === 0) {
-    return {
-      sender: "",
-      response: "No audio file provided",
-    };
-  }
-
-  const arrayBuffer = await file.arrayBuffer();
-  const audio = new Uint8Array(arrayBuffer);
-
-  // const client = new OpenAIClient(env.AZURE_ENDPOINT, new AzureKeyCredential(env.AZURE_API_KEY));
-
-  // const result = await client.getAudioTranscription(env.AZURE_DEPLOYMENT_NAME, audio);
-  // console.log(`Transcription - ${result.text}`);
-
-  // return { text: result.text };
-  return { text: "Testing Success" };
-}

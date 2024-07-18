@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AudioLines, Mic, MicOff, Volume2 } from "lucide-react";
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -17,22 +17,21 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 import { TranslationLanguages } from "../../types";
-import { useTranslateForm } from "./useTranslateForm";
 
 type Props = {
   languages: TranslationLanguages;
+  isTranscribeAudioPending: boolean;
+  onUploadAudio: (file: File) => void;
 };
 
-const mimeType = "audio/webm";
-const TranslateForm = ({ languages }: Props) => {
-  const { isPending, onUploadAudio, methods } = useTranslateForm();
-
+export const mimeType = "audio/webm";
+const TranslateForm = ({ languages, isTranscribeAudioPending, onUploadAudio }: Props) => {
   const {
-    control,
-    getValues,
-    setValue,
     formState: { defaultValues },
-  } = methods;
+    getValues,
+    watch,
+    control,
+  } = useFormContext();
 
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const [audioChunk, setAudioChunk] = useState<Blob[]>([]);
@@ -68,7 +67,7 @@ const TranslateForm = ({ languages }: Props) => {
   };
 
   const startRecording = async () => {
-    if (stream === null || isPending) return;
+    if (stream === null || isTranscribeAudioPending) return;
 
     setRecordingStatus("recording");
 
@@ -87,13 +86,12 @@ const TranslateForm = ({ languages }: Props) => {
     setAudioChunk(localAudioChunks);
   };
   const stopReording = async () => {
-    if (mediaRecorder.current === null || isPending) return;
-    setRecordingStatus("inactive");
+    if (mediaRecorder.current === null || isTranscribeAudioPending) return;
     mediaRecorder.current.stop();
+    setRecordingStatus("inactive");
 
     mediaRecorder.current.onstop = () => {
       const audioBlob = new Blob(audioChunk, { type: mimeType });
-      // uploadAudio(audioBlob);
       const file = new File([audioBlob], mimeType, { type: mimeType });
       onUploadAudio(file);
       setAudioChunk([]);
@@ -149,14 +147,20 @@ const TranslateForm = ({ languages }: Props) => {
                     <MicOff className="mr-2 h-4 w-4 text-red-500" /> Get Microphone
                   </Button>
                 )}
-                {permission && recordingStatus === "inactive" && !isPending && (
-                  <Button variant="outline" size="sm" type="button" onClick={startRecording}>
+                {permission && recordingStatus === "inactive" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    disabled={isTranscribeAudioPending}
+                    onClick={startRecording}
+                  >
                     <Mic className="mr-2 h-4 w-4" /> Speak
                   </Button>
                 )}
                 {recordingStatus === "recording" && (
-                  <Button variant="outline" size="sm" type="button" onClick={stopReording}>
-                    <AudioLines className="mr-2 h-4 w-4 text-green-500" /> Stop
+                  <Button variant="outline" size="sm" type="button" className="bg-red-500" onClick={stopReording}>
+                    <AudioLines className="mr-2 h-4 w-4" /> Stop
                   </Button>
                 )}
               </div>
@@ -215,7 +219,7 @@ const TranslateForm = ({ languages }: Props) => {
                   size="icon"
                   type="button"
                   onClick={handlePlayAudio}
-                  disabled={!getValues("output")}
+                  disabled={!watch("output")}
                 >
                   <Volume2 className="h-4 w-4" />
                 </Button>

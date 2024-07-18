@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, ReactNode } from "react";
+import React, { FC } from "react";
 import { FormProvider } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -14,16 +14,27 @@ interface TranslateProviderProps {
 }
 
 const TranslateProvider: FC<TranslateProviderProps> = ({ languages }) => {
-  const { methods, onHandleSubmit, isPending } = useTranslateForm();
+  const { methods, onHandleSubmit, isTranscribeAudioPending, isTranslatePending, onUploadAudio } = useTranslateForm();
 
+  const handleReset = () => {
+    methods.reset({ input: "", output: "", inputLanguage: "auto", outputLanguage: "es" }, {});
+  };
   return (
     <FormProvider {...methods}>
       <form onSubmit={onHandleSubmit} className="flex flex-col">
-        {/* {children} */}
-        <TranslateForm languages={languages} />
-        <Button type="submit" disabled={isPending} className="mt-5 flex w-36 self-center">
-          {isPending ? "Translating..." : "Translate"}
-        </Button>
+        <TranslateForm
+          languages={languages}
+          isTranscribeAudioPending={isTranscribeAudioPending}
+          onUploadAudio={onUploadAudio}
+        />
+        <div className="flex items-center justify-center gap-2">
+          <Button type="submit" disabled={isTranslatePending} className="mt-5 flex w-32 self-center">
+            {isTranslatePending ? "Translating..." : "Translate"}
+          </Button>
+          <Button type="button" variant={"outline"} className="mt-5 flex w-32 self-center" onClick={handleReset}>
+            Reset
+          </Button>
+        </div>
       </form>
     </FormProvider>
   );
