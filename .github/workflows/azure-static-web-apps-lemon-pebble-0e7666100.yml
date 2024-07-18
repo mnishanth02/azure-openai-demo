@@ -48,7 +48,7 @@ jobs:
         run: pnpm install --frozen-lockfile --verbose
 
       - name: Build Next.js app
-        run: pnpm run build --verbose
+        run: pnpm run build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           AZURE_TEXT_TRANSLATION: ${{ secrets.AZURE_TEXT_TRANSLATION }}
