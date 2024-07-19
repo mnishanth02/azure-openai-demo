@@ -13,7 +13,7 @@
     "prepare": "husky"
   },
   "engines": {
-    "node": "20"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "@azure/openai": "1.0.0-beta.12",
