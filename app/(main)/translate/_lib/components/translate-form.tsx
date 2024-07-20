@@ -15,8 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-import { TranslationLanguages } from "../../types";
+import { TranslationLanguages } from "@/app/(main)/_lib/types";
 
 type Props = {
   languages: TranslationLanguages;

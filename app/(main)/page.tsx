@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { FileAudio, Globe, ImageIcon, MessageSquare, Mic } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ServiceCard = ({ title, description, icon, route }: any) => (
@@ -15,10 +16,10 @@ const ServiceCard = ({ title, description, icon, route }: any) => (
       </div>
       <CardDescription>{description}</CardDescription>
     </CardHeader>
-    <CardFooter>
-      <Button className="w-full" onClick={() => (window.location.href = route)}>
+    <CardFooter className="flex items-center justify-center">
+      <Link href={route} className={buttonVariants({})}>
         Try Now
-      </Button>
+      </Link>
     </CardFooter>
   </Card>
 );
@@ -54,6 +55,12 @@ const ModernHomePage = () => {
       description: "Convert spoken words into written text in real-time.",
       icon: <Mic className="h-6 w-6" />,
       route: "/voice",
+    },
+    {
+      title: "AI Assistant",
+      description: "Have a human like conversation with our AI Assistant",
+      icon: <Mic className="h-6 w-6" />,
+      route: "/assistant",
     },
   ];
 

@@ -4,8 +4,8 @@ import React, { FC } from "react";
 import { FormProvider } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { TranslationLanguages } from "@/app/(main)/_lib/types";
 
-import { TranslationLanguages } from "../../types";
 import TranslateForm from "./translate-form";
 import { useTranslateForm } from "./useTranslateForm";
 

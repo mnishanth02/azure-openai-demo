@@ -5,7 +5,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { TranslateFormSchema, TranslateFormType } from "../../schema";
+import { TranslateFormSchema, TranslateFormType } from "@/app/(main)/_lib/schema";
+
 import { translate } from "./translate-action";
 
 const transcribeAudio = async (file: Blob) => {

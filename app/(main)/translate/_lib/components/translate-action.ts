@@ -1,11 +1,11 @@
 "use server";
 
-import { AzureKeyCredential, OpenAIClient } from "@azure/openai";
 import axios from "axios";
 import { v4 } from "uuid";
 
+import { TranslateFormType } from "@/app/(main)/_lib/schema";
+
 import { env } from "@/env";
-import { TranslateFormType } from "../../schema";
 
 const key = env.AZURE_TEXT_TRANSLATION_KEY;
 const endpoint = env.AZURE_TEXT_TRANSLATION;

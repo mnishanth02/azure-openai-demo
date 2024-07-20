@@ -13,6 +13,7 @@ export const env = createEnv({
     AZURE_API_KEY: z.string().min(1),
     AZURE_ENDPOINT: z.string().min(1),
     AZURE_DEPLOYMENT_NAME: z.string().min(1),
+    AZURE_DEPLOYMENT_COMPLETION_NAME: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),

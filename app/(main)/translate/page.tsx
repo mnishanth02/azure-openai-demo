@@ -1,7 +1,7 @@
 import { LANGUAGE_ENDPOINT } from "@/lib/constants";
 
-import TranslateProvider from "../_lib/components/translate/translate-provider";
 import { TranslationLanguages } from "../_lib/types";
+import TranslateProvider from "./_lib/components/translate-provider";
 
 const TranslatePage = async () => {
   const response = await fetch(LANGUAGE_ENDPOINT, {
