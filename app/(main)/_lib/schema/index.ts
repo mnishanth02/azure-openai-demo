@@ -6,5 +6,9 @@ export const TranslateFormSchema = z.object({
   outputLanguage: z.string(),
   output: z.any(),
 });
+export const ImageFormSchema = z.object({
+  prompt: z.string(),
+});
 
 export type TranslateFormType = z.infer<typeof TranslateFormSchema>;
+export type ImageFormSchemaType = z.infer<typeof ImageFormSchema>;

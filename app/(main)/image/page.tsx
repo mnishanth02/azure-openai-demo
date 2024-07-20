@@ -1,9 +1,9 @@
 import React from "react";
 
-import ImageGeneratorUI from "../_lib/components/imageGenerate";
+import ImageProvider from "./_lib/components/image-provider";
 
 const ImagePage = () => {
-  return <ImageGeneratorUI />;
+  return <ImageProvider />;
 };
 
 export default ImagePage;
