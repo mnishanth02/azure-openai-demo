@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { FileAudio, Globe, ImageIcon, MessageSquare, Mic } from "lucide-react";
+import { FileAudio, Globe, ImageIcon, MessageSquare, Mic, ScanEye } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,6 +61,12 @@ const ModernHomePage = () => {
       description: "Have a human like conversation with our AI Assistant",
       icon: <Mic className="h-6 w-6" />,
       route: "/assistant",
+    },
+    {
+      title: "AI Mock Interview",
+      description: "Ace Your Next Interview with AI-Guided Practice and Feedback",
+      icon: <ScanEye className="h-6 w-6" />,
+      route: "/interview",
     },
   ];
 

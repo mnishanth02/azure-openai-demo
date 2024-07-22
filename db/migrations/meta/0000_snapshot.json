@@ -1,0 +1,76 @@
+{
+  "id": "689c1aea-799c-4ae9-b37a-58a0f2d71d20",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.mock_interview": {
+      "name": "mock_interview",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "json_mock_response": {
+          "name": "json_mock_response",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "job_position": {
+          "name": "job_position",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "job_desc": {
+          "name": "job_desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "job_experence": {
+          "name": "job_experence",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "mockId": {
+          "name": "mockId",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -9,6 +9,12 @@ export const TranslateFormSchema = z.object({
 export const ImageFormSchema = z.object({
   prompt: z.string(),
 });
+export const InterviewFormSchema = z.object({
+  role: z.string(),
+  description: z.string(),
+  experence: z.string(),
+});
 
 export type TranslateFormType = z.infer<typeof TranslateFormSchema>;
 export type ImageFormSchemaType = z.infer<typeof ImageFormSchema>;
+export type InterviewFormSchemaType = z.infer<typeof InterviewFormSchema>;
