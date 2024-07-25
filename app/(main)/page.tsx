@@ -32,30 +32,14 @@ const ModernHomePage = () => {
       icon: <Globe className="h-6 w-6" />,
       route: "/translate",
     },
-    {
-      title: "Text to Speech",
-      description: "Convert your text into natural-sounding speech.",
-      icon: <MessageSquare className="h-6 w-6" />,
-      route: "/speech",
-    },
+
     {
       title: "Text to Image",
       description: "Generate unique images from textual descriptions.",
       icon: <ImageIcon className="h-6 w-6" />,
       route: "/image",
     },
-    {
-      title: "Audio to Text",
-      description: "Transcribe audio files into text with high accuracy.",
-      icon: <FileAudio className="h-6 w-6" />,
-      route: "/audio",
-    },
-    {
-      title: "Voice to Text",
-      description: "Convert spoken words into written text in real-time.",
-      icon: <Mic className="h-6 w-6" />,
-      route: "/voice",
-    },
+
     {
       title: "AI Assistant",
       description: "Have a human like conversation with our AI Assistant",

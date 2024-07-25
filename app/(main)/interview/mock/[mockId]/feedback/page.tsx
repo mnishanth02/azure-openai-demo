@@ -1,5 +1,4 @@
 import { FC } from "react";
-import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { ChevronsUpDown } from "lucide-react";
 
@@ -9,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 import { db } from "@/db/db";
 import { UserAnswer } from "@/db/schema";
+import GoHome from "../../../_lib/components/go-home";
 
 interface FeedbackPageProps {
   params: { mockId: string };
@@ -68,9 +68,7 @@ const FeedbackPage: FC<FeedbackPageProps> = async ({ params }) => {
           </>
         )}
 
-        <Link href={"/interview"} className={cn(buttonVariants(), "mt-4")}>
-          Go Home
-        </Link>
+        <GoHome />
       </div>
     </div>
   );

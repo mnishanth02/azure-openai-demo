@@ -7,6 +7,8 @@ import InterviewItemCard from "./interview-item-card";
 
 interface InterviewListProps {}
 
+export const revalidate = 60;
+
 const InterviewList: FC<InterviewListProps> = async ({}) => {
   const interList = await db.select().from(MockInterview).orderBy(desc(MockInterview.id));
 
