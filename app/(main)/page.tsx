@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { FileAudio, Globe, ImageIcon, MessageSquare, Mic, ScanEye } from "lucide-react";
+import { FileAudio, Globe, ImageIcon, MessageSquare, Mic, MousePointerClick, ScanEye } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,6 +51,12 @@ const ModernHomePage = () => {
       description: "Ace Your Next Interview with AI-Guided Practice and Feedback",
       icon: <ScanEye className="h-6 w-6" />,
       route: "/interview",
+    },
+    {
+      title: "Resume Selector",
+      description: "Use AI to shortlist resume for your Jobdescription or Tech Stack",
+      icon: <MousePointerClick className="h-6 w-6" />,
+      route: "/resume-chat",
     },
   ];
 

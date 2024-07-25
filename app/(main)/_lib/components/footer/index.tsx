@@ -1,9 +1,9 @@
-import React from "react";
-
 const Footer = () => {
   return (
-    <footer className="mb-4 text-center">
-      <p>© 2024 AI Language Services. All rights reserved.</p>
+    <footer className="text-center">
+      <p className="text-sm">
+        Build by <span className="text-base italic underline underline-offset-4">Nishanth Murugan</span> (687027)
+      </p>
     </footer>
   );
 };

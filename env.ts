@@ -17,7 +17,12 @@ export const env = createEnv({
     AZURE_ENDPOINT_EUS: z.string().min(1),
     AZURE_API_KEY_EUS: z.string().min(1),
     AZURE_DEPLOYMENT_NAME_IMAGE: z.string().min(1),
-    AZURE_DEPLOYMENT_COMPLETION_NAME_GPT4O: z.string().min(1),
+    AZURE_SEARCH_ENDPOINT: z.string().min(1),
+    AZURE_SEARCH_API_KEY: z.string().min(1),
+    AZURE_SEARCH_INDEX_NAME: z.string().min(1),
+    AZURE_INTERVIEW_ENDPOINT: z.string().min(1),
+    AZRE_INTERVIEW_API_KEY: z.string().min(1),
+    AZURE_INTERVIEW_DEPLOYMENT_NAME: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
