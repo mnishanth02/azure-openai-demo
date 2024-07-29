@@ -1,5 +1,6 @@
 import AddNewInterview from "./_lib/components/add-new-interview";
 import InterviewList from "./_lib/components/interview-list";
+import ResumeList from "./_lib/components/resume-list";
 
 const InterviewPage = () => {
   return (
@@ -10,6 +11,7 @@ const InterviewPage = () => {
         <AddNewInterview />
       </div>
       <InterviewList />
+      <ResumeList />
     </div>
   );
 };

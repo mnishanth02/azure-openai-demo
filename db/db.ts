@@ -7,8 +7,8 @@ const pool = new Pool({
   host: "aidemo2-pg.postgres.database.azure.com",
   port: 5432,
   user: "aidemo",
-  password: "Azure_pass@2024",
   database: "ai_interview",
+  password: "Azure_pass@2024",
   ssl: {
     rejectUnauthorized: false,
   },
