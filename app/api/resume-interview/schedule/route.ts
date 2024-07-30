@@ -3,7 +3,7 @@ import { AzureKeyCredential, OpenAIClient } from "@azure/openai";
 import { ChatRequestMessage } from "@azure/openai/rest";
 import { eq, sql } from "drizzle-orm";
 
-import { ScheduleFormValues } from "@/app/(main)/interview/_lib/components/useResumeScheduler";
+import { ScheduleFormValues } from "@/app/(main)/interview/_lib/components/resume/useResumeScheduler";
 
 import { db } from "@/db/db";
 import {

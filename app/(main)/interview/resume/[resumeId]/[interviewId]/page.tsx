@@ -1,26 +1,13 @@
 import { sql } from "drizzle-orm";
 
 import { db } from "@/db/db";
+import StartInterviewForm from "../../../_lib/components/resume/start-interview-form";
+import { InterviewData } from "../../../_lib/components/resume/useResumeInterviewStart";
 
 interface PageProps {
   params: {
     resumeId: string;
     interviewId: string;
-  };
-}
-
-interface InterviewQuestion {
-  questionId: number;
-  question: string;
-}
-
-interface InterviewData {
-  interviewDescription: string;
-  interviewStatus: string;
-  questions: InterviewQuestion[];
-  personalInfo: {
-    name: string;
-    email: string;
   };
 }
 
@@ -54,7 +41,6 @@ async function getInterviewData(interviewId: number, resumeId: number): Promise<
     },
   };
 
-  // Check if result.rows exists and is an array
   if (Array.isArray(result.rows)) {
     for (const row of result.rows) {
       if (!processedResult.interviewDescription && row.interviewDescription) {
@@ -85,16 +71,8 @@ async function getInterviewData(interviewId: number, resumeId: number): Promise<
 const ResumeInterviewStartPage = async ({ params }: PageProps) => {
   const { resumeId, interviewId } = params;
 
-  const data = await getInterviewData(+interviewId, +resumeId);
-  return (
-    <div>
-      <h1>Resume Page</h1>
-      <p>Resume ID: {resumeId}</p>
-      <p>Interview ID: {interviewId}</p>
-
-      <p>{JSON.stringify(data, null, 2)}</p>
-    </div>
-  );
+  const interviewData = await getInterviewData(+interviewId, +resumeId);
+  return <StartInterviewForm interviewData={interviewData} />;
 };
 
 export default ResumeInterviewStartPage;
