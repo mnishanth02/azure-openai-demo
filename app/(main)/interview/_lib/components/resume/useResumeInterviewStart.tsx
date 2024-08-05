@@ -1,6 +1,5 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -11,6 +10,13 @@ export interface InterviewQuestion {
   questionId: number;
   question: string;
 }
+
+type NextQuestionProps = {
+  questionId: number;
+  answer: string;
+  resumeId: string;
+  interviewId: string;
+};
 
 export interface InterviewData {
   interviewDescription: string;
@@ -28,16 +34,34 @@ const InterviewFormSchema = z.object({
 
 export type InterviewFormValues = z.infer<typeof InterviewFormSchema>;
 
-const getInterviewQuestions = async (data: InterviewFormValues) => {
-  const response = await fetch("/api/resume-interview/schedule", {
+const fetchNextQuestion = async (dataa: NextQuestionProps): Promise<InterviewQuestion> => {
+  const resumeId = dataa.resumeId;
+  const interviewId = dataa.interviewId;
+  const questionId = dataa.questionId;
+  const answer = dataa.answer;
+
+  const response = await fetch("/api/resume-interview/next-question", {
     method: "POST",
-    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ resumeId, interviewId, questionId, answer }),
   });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch next question");
+  }
 
   return await response.json();
 };
 
-export const useResumeInterviewStart = () => {
+export const useResumeInterviewStart = (initialData: InterviewData) => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [questions, setQuestions] = useState<InterviewQuestion[]>(initialData.questions);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const { resumeId, interviewId } = useParams();
+  console.log("Params", resumeId, interviewId);
+
   const methods = useForm<InterviewFormValues>({
     resolver: zodResolver(InterviewFormSchema),
     defaultValues: {
@@ -48,33 +72,53 @@ export const useResumeInterviewStart = () => {
 
   const router = useRouter();
 
-  const { mutate, isPending } = useMutation<any, Error, InterviewFormValues>({
-    mutationFn: getInterviewQuestions,
+  const { mutate, isPending } = useMutation<InterviewQuestion, Error, { questionId: number; answer: string }>({
+    mutationFn: ({ questionId, answer }) =>
+      fetchNextQuestion({ answer, questionId, interviewId: interviewId as string, resumeId: resumeId as string }),
+    onSuccess: (newQuestion) => {
+      console.log("Success Response ->>", JSON.stringify(newQuestion));
+
+      setQuestions((prev) => [...prev, newQuestion]);
+      setCurrentQuestionIndex((prev) => prev + 1);
+      methods.reset({ answer: "" });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
 
   const onSubmit = (values: InterviewFormValues) => {
-    console.log("Sub Form ->", values);
+    const currentQuestion = questions[currentQuestionIndex];
+    if (!currentQuestion) return;
 
-    // mutate(values, {
-    //   onSuccess: (data) => {
-    //     console.log("API Respionse -<>", data);
-    //     const resumeId = data.resumeId;
-    //     const interviewId = data.interviewId;
+    setAnswers((prev) => ({ ...prev, [currentQuestion.questionId]: values.answer }));
 
-    //     // router.push("/interview/resume/mock/" + data.response.mockId);
-    //     router.push(`/interview/resume/${resumeId}/${interviewId}`);
-    //   },
-    //   onError: (data) => {
-    //     toast.error(data.message);
-    //   },
-    // });
+    if (currentQuestionIndex === questions.length - 1) {
+      mutate({ questionId: currentQuestion.questionId, answer: values.answer });
+    } else {
+      setCurrentQuestionIndex((prev) => prev + 1);
+      methods.reset({ answer: "" });
+    }
   };
 
   const onHandleSubmit = methods.handleSubmit(onSubmit);
+
+  const navigateQuestion = (direction: "prev" | "next") => {
+    if (direction === "prev" && currentQuestionIndex > 0) {
+      setCurrentQuestionIndex((prev) => prev - 1);
+    } else if (direction === "next" && currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex((prev) => prev + 1);
+    }
+    methods.setValue("answer", answers[questions[currentQuestionIndex].questionId] || "");
+  };
 
   return {
     methods,
     onHandleSubmit,
     isPending,
+    currentQuestionIndex,
+    questions,
+    navigateQuestion,
+    interviewData: initialData,
   };
 };

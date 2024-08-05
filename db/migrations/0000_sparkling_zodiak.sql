@@ -94,13 +94,24 @@ CREATE TABLE IF NOT EXISTS "resume_interview" (
 	"start_time" timestamp,
 	"end_time" timestamp,
 	"status" text NOT NULL,
+	"total_topics" integer DEFAULT 5 NOT NULL,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "resume_question" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"interview_id" integer,
+	"topic_id" integer,
 	"question" text NOT NULL,
+	"question_order" integer NOT NULL,
+	"created_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "resume_topic" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"interview_id" integer,
+	"topic_name" varchar(255) NOT NULL,
+	"topic_order" integer NOT NULL,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
@@ -152,7 +163,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "resume_answer" ADD CONSTRAINT "resume_answer_question_id_resume_question_id_fk" FOREIGN KEY ("question_id") REFERENCES "public"."resume_question"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "resume_answer" ADD CONSTRAINT "resume_answer_question_id_resume_question_id_fk" FOREIGN KEY ("question_id") REFERENCES "public"."resume_question"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -164,7 +175,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "resume_question" ADD CONSTRAINT "resume_question_interview_id_resume_interview_id_fk" FOREIGN KEY ("interview_id") REFERENCES "public"."resume_interview"("id") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "resume_question" ADD CONSTRAINT "resume_question_interview_id_resume_interview_id_fk" FOREIGN KEY ("interview_id") REFERENCES "public"."resume_interview"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "resume_question" ADD CONSTRAINT "resume_question_topic_id_resume_topic_id_fk" FOREIGN KEY ("topic_id") REFERENCES "public"."resume_topic"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "resume_topic" ADD CONSTRAINT "resume_topic_interview_id_resume_interview_id_fk" FOREIGN KEY ("interview_id") REFERENCES "public"."resume_interview"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

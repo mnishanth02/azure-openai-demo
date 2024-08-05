@@ -106,26 +106,39 @@ export const additionalInfo = pgTable("additional_info", {
   info: text("info"),
 });
 
+//  Resume Canges
+
 export const resumeInterview = pgTable("resume_interview", {
   id: serial("id").primaryKey(),
   resumeId: integer("resume_id").references(() => personalInfo.id, { onDelete: "cascade" }),
   jobDescription: text("job_description").notNull(),
   startTime: timestamp("start_time"),
-  endTtime: timestamp("end_time"),
+  endTime: timestamp("end_time"),
   status: text("status").notNull(),
+  totalTopics: integer("total_topics").notNull().default(5),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const resumeTopic = pgTable("resume_topic", {
+  id: serial("id").primaryKey(),
+  interviewId: integer("interview_id").references(() => resumeInterview.id, { onDelete: "cascade" }),
+  topicName: varchar("topic_name", { length: 255 }).notNull(),
+  topicOrder: integer("topic_order").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const resumeQuestion = pgTable("resume_question", {
   id: serial("id").primaryKey(),
-  interviewId: integer("interview_id").references(() => resumeInterview.id),
+  interviewId: integer("interview_id").references(() => resumeInterview.id, { onDelete: "cascade" }),
+  topicId: integer("topic_id").references(() => resumeTopic.id, { onDelete: "cascade" }),
   question: text("question").notNull(),
+  questionOrder: integer("question_order").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const resumeAnswer = pgTable("resume_answer", {
   id: serial("id").primaryKey(),
-  questionId: integer("question_id").references(() => resumeQuestion.id),
+  questionId: integer("question_id").references(() => resumeQuestion.id, { onDelete: "cascade" }),
   userAnswer: text("user_answer"),
   feedback: text("feedback"),
   rating: text("rating"),

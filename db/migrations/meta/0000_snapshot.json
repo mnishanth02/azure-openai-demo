@@ -1,5 +1,5 @@
 {
-  "id": "b69c9eba-703a-4b72-bae6-6147e59eb6e4",
+  "id": "151a1a5f-9522-4804-9090-add66837e534",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -523,7 +523,7 @@
           "tableTo": "resume_question",
           "columnsFrom": ["question_id"],
           "columnsTo": ["id"],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -570,6 +570,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "total_topics": {
+          "name": "total_topics",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 5
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -609,9 +616,21 @@
           "primaryKey": false,
           "notNull": false
         },
+        "topic_id": {
+          "name": "topic_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "question": {
           "name": "question",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question_order": {
+          "name": "question_order",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -631,7 +650,67 @@
           "tableTo": "resume_interview",
           "columnsFrom": ["interview_id"],
           "columnsTo": ["id"],
-          "onDelete": "no action",
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "resume_question_topic_id_resume_topic_id_fk": {
+          "name": "resume_question_topic_id_resume_topic_id_fk",
+          "tableFrom": "resume_question",
+          "tableTo": "resume_topic",
+          "columnsFrom": ["topic_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.resume_topic": {
+      "name": "resume_topic",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "interview_id": {
+          "name": "interview_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "topic_name": {
+          "name": "topic_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "topic_order": {
+          "name": "topic_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "resume_topic_interview_id_resume_interview_id_fk": {
+          "name": "resume_topic_interview_id_resume_interview_id_fk",
+          "tableFrom": "resume_topic",
+          "tableTo": "resume_interview",
+          "columnsFrom": ["interview_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
