@@ -105,11 +105,18 @@ export const useResumeInterviewStart = (initialData: InterviewData) => {
 
   const navigateQuestion = (direction: "prev" | "next") => {
     if (direction === "prev" && currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
+      setCurrentQuestionIndex((prev) => {
+        const updatedQuestionIndex = prev - 1;
+        methods.setValue("answer", answers[questions[updatedQuestionIndex].questionId] || "");
+        return updatedQuestionIndex;
+      });
     } else if (direction === "next" && currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      setCurrentQuestionIndex((prev) => {
+        const updatedQuestionIndex = prev + 1;
+        methods.setValue("answer", answers[questions[updatedQuestionIndex].questionId] || "");
+        return updatedQuestionIndex;
+      });
     }
-    methods.setValue("answer", answers[questions[currentQuestionIndex].questionId] || "");
   };
 
   return {

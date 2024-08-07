@@ -1,10 +1,7 @@
 "use client";
 
-import { FC, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { FC } from "react";
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,8 +18,6 @@ interface ResumeInterviewScheduleProps {
 }
 
 const ResumeInterviewSchedule: FC<ResumeInterviewScheduleProps> = ({ resumeList }) => {
-  const [selectedPerson, setSelectedPerson] = useState<PersonalInfoWithSkills | null>(null);
-
   const { methods, onHandleSubmit, isPending } = useResumeScheduler();
 
   return (
@@ -48,7 +43,7 @@ const ResumeInterviewSchedule: FC<ResumeInterviewScheduleProps> = ({ resumeList 
             <CardFooter className="flex justify-end">
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button onClick={() => setSelectedPerson(person)}>Schedule Interview</Button>
+                  <Button>Schedule Interview</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
@@ -113,7 +108,9 @@ const ResumeInterviewSchedule: FC<ResumeInterviewScheduleProps> = ({ resumeList 
                       </div>
 
                       <DialogFooter>
-                        <Button type="submit">Schedule</Button>
+                        <Button type="submit" disabled={isPending}>
+                          {isPending ? "Scheduling..." : "Schedule"}
+                        </Button>
                       </DialogFooter>
                     </form>
                   </Form>

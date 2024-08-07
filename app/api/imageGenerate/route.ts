@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
   const results = await client.getImages(env.AZURE_DEPLOYMENT_NAME_IMAGE, prompt, { n, size });
 
   const images = results.data.map((img) => img.url);
-  console.log("Images->>", images);
 
   return NextResponse.json({ response: images }, { status: 200 });
 }

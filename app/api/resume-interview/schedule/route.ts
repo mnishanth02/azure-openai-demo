@@ -1,34 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AzureKeyCredential, OpenAIClient } from "@azure/openai";
-import { ChatRequestMessage } from "@azure/openai/rest";
-import { eq, sql } from "drizzle-orm";
 
 import { ScheduleFormValues } from "@/app/(main)/interview/_lib/components/resume/useResumeScheduler";
 
 import { db } from "@/db/db";
-import {
-  Certifications,
-  certifications,
-  education,
-  languages,
-  personalInfo,
-  Projects,
-  projects,
-  resumeInterview,
-  resumeQuestion,
-  resumeTopic,
-  skills,
-  WorkExperience,
-  workExperience,
-} from "@/db/schema";
-import { env } from "@/env";
-
-const client = new OpenAIClient(env.AZURE_INTERVIEW_ENDPOINT, new AzureKeyCredential(env.AZRE_INTERVIEW_API_KEY));
+import { resumeInterview, resumeQuestion, resumeTopic } from "@/db/schema";
 
 export async function POST(request: NextRequest) {
   const jsonReq = (await request.json()) as ScheduleFormValues;
-
-  //   console.log("jsonReq->", jsonReq);
 
   if (!jsonReq || !jsonReq.resumeId || !jsonReq.jd) {
     return NextResponse.json({ error: "Missing required data to start the interview" }, { status: 400 });

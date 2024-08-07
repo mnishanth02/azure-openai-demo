@@ -53,7 +53,7 @@ export default function StartInterviewForm({ interviewData }: Props) {
           <Card className="min-h-72 bg-secondary">
             <CardHeader className="p-4">
               <CardTitle className="text-lg font-semibold underline underline-offset-4">
-                Question {currentQuestionIndex}
+                Question {currentQuestionIndex + 1}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 py-2">

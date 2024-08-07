@@ -47,7 +47,6 @@ export const useResumeScheduler = () => {
 
     mutate(values, {
       onSuccess: (data) => {
-        console.log("API Respionse -<>", data);
         const resumeId = data.resumeId;
         const interviewId = data.interviewId;
 
