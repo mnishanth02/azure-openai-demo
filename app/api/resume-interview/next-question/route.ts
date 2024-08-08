@@ -13,7 +13,6 @@ import {
   resumeAnswer,
   resumeInterview,
   resumeQuestion,
-  resumeTopic,
   skills,
   workExperience,
   WorkExperience,
@@ -21,7 +20,7 @@ import {
 import { env } from "@/env";
 
 const client = new OpenAIClient(env.AZURE_INTERVIEW_ENDPOINT, new AzureKeyCredential(env.AZRE_INTERVIEW_API_KEY));
-const QUESTIONS_PER_TOPIC = 3;
+const QUESTIONS_PER_INTERVIEW = 5;
 
 async function getResumeData(resumeId: number) {
   try {
@@ -83,7 +82,6 @@ async function getInterviewData(interviewId: number) {
     const [interviewData] = await db
       .select({
         jobDescription: resumeInterview.jobDescription,
-        totalTopics: resumeInterview.totalTopics,
       })
       .from(resumeInterview)
       .where(eq(resumeInterview.id, interviewId));
@@ -95,7 +93,7 @@ async function getInterviewData(interviewId: number) {
   }
 }
 
-async function getPreviousQuestionsForTopic(interviewId: number, topicId: number) {
+async function getPreviousQuestions(interviewId: number) {
   try {
     const previousQuestions = await db
       .select({
@@ -107,7 +105,7 @@ async function getPreviousQuestionsForTopic(interviewId: number, topicId: number
       })
       .from(resumeQuestion)
       .leftJoin(resumeAnswer, eq(resumeQuestion.id, resumeAnswer.questionId))
-      .where(and(eq(resumeQuestion.interviewId, interviewId), eq(resumeQuestion.topicId, topicId)))
+      .where(eq(resumeQuestion.interviewId, interviewId))
       .orderBy(resumeQuestion.questionOrder);
 
     return previousQuestions;
@@ -116,13 +114,12 @@ async function getPreviousQuestionsForTopic(interviewId: number, topicId: number
     throw error;
   }
 }
-
 function generatePrompt(
   resumeData: any,
   jobDescription: string,
   previousQuestions: any[],
   currentQuestionNumber: number,
-  topicName: string
+  isLastQuestion: boolean
 ): ChatRequestMessage[] {
   return [
     {
@@ -131,31 +128,28 @@ function generatePrompt(
         You are an AI Technical Interview panel assistant. Your task is to conduct a technical interview based on the candidate's resume and the job description. Follow these guidelines:
 
         1. Ask relevant technical questions based on the candidate's experience and the job requirements.
-        2. For each topic, ask a series of ${QUESTIONS_PER_TOPIC} related questions before moving to a new topic. After  ${QUESTIONS_PER_TOPIC} questions in the same topic pick a new topic based on the Job description and user's skill and update the same in the response as well.
-        3. Ensure questions become progressively more challenging within each topic.
-        4. Maintain a natural conversation flow and provide feedback on the candidate's answers.
-        5. Rate the candidate's previous answer on a scale of 1 to 10, with 10 being the best.
-        6. Format your response as a JSON object with the following structure:
+        2. Ensure questions become progressively more challenging as the interview progresses.
+        3. Maintain a natural conversation flow and provide feedback on the candidate's answers.
+        4. Rate the candidate's previous answer on a scale of 1 to 10, with 10 being the best.
+        5. Format your response as a JSON object with the following structure:
         {
-            "feedback": "Detailed feedback on the previous answer (only if there was a previous answer)",
-            "rating": "Numerical rating of the previous answer from 1 to 10 (only if there was a previous answer)",
-            "question": "The next interview question",
-            "topic": "The current topic being discussed"
+            "feedback": "Detailed feedback on the previous answer",
+            "rating": "Numerical rating of the previous answer from 1 to 10",
+            ${isLastQuestion ? "" : '"question": "The next interview question"'}
         }
-        7. For the first question of a new topic, omit the "feedback" and "rating" fields.
-        8. Ensure the feedback is constructive and the rating is fair based on the technical accuracy and completeness of the answer.
-        9. You are currently on the topic "${topicName}", Question ${currentQuestionNumber} of this topic.
+        6. Ensure the feedback is constructive and the rating is fair based on the technical accuracy and completeness of the answer.
+        7. You are currently on question ${currentQuestionNumber} of ${QUESTIONS_PER_INTERVIEW}.
+        ${isLastQuestion ? "8. This is the last question of the interview. Provide a comprehensive feedback on the answer." : ""}
       `,
     },
     {
       role: "user",
       content: `Resume: ${JSON.stringify(resumeData)}
         Job Description: ${jobDescription}
-        Current Topic: ${topicName}
-        Current Question Number in Topic: ${currentQuestionNumber}
-        Previous Questions and Answers for this Topic: ${JSON.stringify(previousQuestions)}
+        Current Question Number: ${currentQuestionNumber}
+        Previous Questions and Answers: ${JSON.stringify(previousQuestions)}
 
-        Please provide feedback on the previous answer (if applicable), a rating out of 10, and the next interview question based on the above information.`,
+        Please provide feedback on the previous answer, a rating out of 10, ${isLastQuestion ? "and a comprehensive final feedback." : "and the next interview question based on the above information."}`,
     },
   ];
 }
@@ -180,32 +174,15 @@ export async function POST(request: NextRequest) {
     // Get current question data
     const [currentQuestion] = await db
       .select({
-        topicId: resumeQuestion.topicId,
         questionOrder: resumeQuestion.questionOrder,
       })
       .from(resumeQuestion)
       .where(eq(resumeQuestion.id, +questionId));
 
-    if (!currentQuestion.topicId) {
-      return NextResponse.json({ error: "Missing Interview Topic" }, { status: 400 });
-    }
+    const isLastQuestion = currentQuestion.questionOrder === QUESTIONS_PER_INTERVIEW;
 
-    // Get current topic data
-    const [currentTopic] = await db
-      .select({
-        topicName: resumeTopic.topicName,
-        topicOrder: resumeTopic.topicOrder,
-      })
-      .from(resumeTopic)
-      .where(eq(resumeTopic.id, currentQuestion.topicId));
-
-    // Check if we've reached the maximum number of topics
-    if (currentTopic.topicOrder > interviewData.totalTopics) {
-      return NextResponse.json({ message: "Interview completed" }, { status: 200 });
-    }
-
-    // Get previous questions and answers for the current topic
-    const previousQuestions = await getPreviousQuestionsForTopic(+interviewId, currentQuestion.topicId);
+    // Get previous questions and answers
+    const previousQuestions = await getPreviousQuestions(+interviewId);
 
     // Save the user's answer to the database
     await db.insert(resumeAnswer).values({
@@ -219,7 +196,7 @@ export async function POST(request: NextRequest) {
       interviewData.jobDescription,
       previousQuestions,
       currentQuestion.questionOrder,
-      currentTopic.topicName
+      isLastQuestion
     );
 
     // Get response from GPT
@@ -242,41 +219,37 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(resumeAnswer.questionId, +questionId));
 
-    // Determine if we need to move to a new topic
-    const isNewTopic = currentQuestion.questionOrder === QUESTIONS_PER_TOPIC;
-    let newTopicId = currentQuestion.topicId;
+    if (isLastQuestion) {
+      // Update the interview status to completed
+      await db
+        .update(resumeInterview)
+        .set({
+          status: "completed",
+          endTime: new Date(),
+        })
+        .where(eq(resumeInterview.id, +interviewId));
 
-    if (isNewTopic) {
-      const [newTopic] = await db
-        .insert(resumeTopic)
+      return NextResponse.json({
+        message: "Interview completed",
+        isLastQuestion: true,
+      });
+    } else {
+      // Save the new question to the database
+      const [newQuestion] = await db
+        .insert(resumeQuestion)
         .values({
           interviewId: +interviewId,
-          topicName: parsedResponse.topic,
-          topicOrder: currentTopic.topicOrder + 1,
+          question: parsedResponse.question,
+          questionOrder: currentQuestion.questionOrder + 1,
         })
         .returning();
-      newTopicId = newTopic.id;
+
+      return NextResponse.json({
+        newQuestionId: newQuestion.id,
+        currentQuestionNumber: currentQuestion.questionOrder + 1,
+        isLastQuestion: currentQuestion.questionOrder + 1 === QUESTIONS_PER_INTERVIEW,
+      });
     }
-
-    // Save the new question to the database
-    const [newQuestion] = await db
-      .insert(resumeQuestion)
-      .values({
-        interviewId: +interviewId,
-        topicId: newTopicId,
-        question: parsedResponse.question,
-        questionOrder: isNewTopic ? 1 : currentQuestion.questionOrder + 1,
-      })
-      .returning();
-
-    return NextResponse.json({
-      ...parsedResponse,
-      newQuestionId: newQuestion.id,
-      currentTopicNumber: isNewTopic ? currentTopic.topicOrder + 1 : currentTopic.topicOrder,
-      currentQuestionInTopic: isNewTopic ? 1 : currentQuestion.questionOrder + 1,
-      isLastQuestion:
-        currentTopic.topicOrder === interviewData.totalTopics && currentQuestion.questionOrder === QUESTIONS_PER_TOPIC,
-    });
   } catch (error) {
     console.error("Error:", error);
     throw error;

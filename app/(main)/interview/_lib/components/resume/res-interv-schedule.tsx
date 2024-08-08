@@ -22,7 +22,8 @@ const ResumeInterviewSchedule: FC<ResumeInterviewScheduleProps> = ({ resumeList 
 
   return (
     <div className="container mx-auto mt-10 p-4">
-      <h1 className="mb-4 text-2xl font-bold">Personal Information Cards</h1>
+      {resumeList.length > 0 && <h1 className="mb-4 text-2xl font-bold">Schedule Interview by Resume</h1>}
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {resumeList.map((person) => (
           <Card key={person.id} className="w-full">

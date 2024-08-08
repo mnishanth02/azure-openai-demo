@@ -14,12 +14,32 @@ interface FeedbackPageProps {
   params: { mockId: string };
 }
 
+interface Feedback {
+  id: number;
+  createdAt: Date;
+  mockIdRef: string;
+  question: string;
+  correctAns: string | null;
+  userAns: string | null;
+  feedback: string | null;
+  rating: string | null;
+}
+
 const FeedbackPage: FC<FeedbackPageProps> = async ({ params }) => {
-  const feedbackList = await db
+  const feedbackList: Feedback[] = await db
     .select()
     .from(UserAnswer)
     .where(eq(UserAnswer.mockIdRef, params.mockId))
     .orderBy(UserAnswer.id);
+
+  function calculateAverageRating(): number {
+    if (feedbackList.length === 0) return 0;
+
+    const totalRating = feedbackList.reduce((sum, feedback) => sum + Number(feedback.rating), 0);
+    const averageRating = totalRating / feedbackList.length;
+
+    return averageRating;
+  }
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -31,7 +51,7 @@ const FeedbackPage: FC<FeedbackPageProps> = async ({ params }) => {
             <h2 className="text-3xl font-bold text-green-500">Congratulations! </h2>
             <h3 className="text-2xl font-bold">Here is you interview feedback</h3>
             <h3 className="my-3 text-lg text-secondary-foreground">
-              Your overall interview rating <strong>7/10</strong>
+              Your overall interview rating <strong>{calculateAverageRating()}/10</strong>
             </h3>
 
             <h4 className="text-sm text-secondary-foreground/80">

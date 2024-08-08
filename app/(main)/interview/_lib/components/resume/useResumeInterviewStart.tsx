@@ -34,11 +34,16 @@ const InterviewFormSchema = z.object({
 
 export type InterviewFormValues = z.infer<typeof InterviewFormSchema>;
 
-const fetchNextQuestion = async (dataa: NextQuestionProps): Promise<InterviewQuestion> => {
-  const resumeId = dataa.resumeId;
-  const interviewId = dataa.interviewId;
-  const questionId = dataa.questionId;
-  const answer = dataa.answer;
+interface ApiResponse {
+  newQuestionId?: number;
+  question?: string;
+  currentQuestionNumber?: number;
+  isLastQuestion: boolean;
+  message?: string;
+}
+
+const fetchNextQuestion = async (data: NextQuestionProps): Promise<ApiResponse> => {
+  const { resumeId, interviewId, questionId, answer } = data;
 
   const response = await fetch("/api/resume-interview/next-question", {
     method: "POST",
@@ -59,8 +64,8 @@ export const useResumeInterviewStart = (initialData: InterviewData) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questions, setQuestions] = useState<InterviewQuestion[]>(initialData.questions);
   const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [isInterviewCompleted, setIsInterviewCompleted] = useState(false);
   const { resumeId, interviewId } = useParams();
-  console.log("Params", resumeId, interviewId);
 
   const methods = useForm<InterviewFormValues>({
     resolver: zodResolver(InterviewFormSchema),
@@ -72,14 +77,21 @@ export const useResumeInterviewStart = (initialData: InterviewData) => {
 
   const router = useRouter();
 
-  const { mutate, isPending } = useMutation<InterviewQuestion, Error, { questionId: number; answer: string }>({
+  const { mutate, isPending } = useMutation<ApiResponse, Error, { questionId: number; answer: string }>({
     mutationFn: ({ questionId, answer }) =>
       fetchNextQuestion({ answer, questionId, interviewId: interviewId as string, resumeId: resumeId as string }),
-    onSuccess: (newQuestion) => {
-      console.log("Success Response ->>", JSON.stringify(newQuestion));
+    onSuccess: (response) => {
+      console.log("Success Response ->>", JSON.stringify(response));
 
-      setQuestions((prev) => [...prev, newQuestion]);
-      setCurrentQuestionIndex((prev) => prev + 1);
+      if (response.isLastQuestion) {
+        setIsInterviewCompleted(true);
+        toast.success(response.message || "Interview completed");
+        // You might want to navigate to a completion page or show a completion modal
+        // router.push(`/interview-completed/${interviewId}`);
+      } else if (response.newQuestionId && response.question) {
+        setQuestions((prev) => [...prev, { questionId: response.newQuestionId!, question: response.question! }]);
+        setCurrentQuestionIndex((prev) => prev + 1);
+      }
       methods.reset({ answer: "" });
     },
     onError: (error) => {
@@ -93,12 +105,7 @@ export const useResumeInterviewStart = (initialData: InterviewData) => {
 
     setAnswers((prev) => ({ ...prev, [currentQuestion.questionId]: values.answer }));
 
-    if (currentQuestionIndex === questions.length - 1) {
-      mutate({ questionId: currentQuestion.questionId, answer: values.answer });
-    } else {
-      setCurrentQuestionIndex((prev) => prev + 1);
-      methods.reset({ answer: "" });
-    }
+    mutate({ questionId: currentQuestion.questionId, answer: values.answer });
   };
 
   const onHandleSubmit = methods.handleSubmit(onSubmit);
@@ -127,5 +134,6 @@ export const useResumeInterviewStart = (initialData: InterviewData) => {
     questions,
     navigateQuestion,
     interviewData: initialData,
+    isInterviewCompleted,
   };
 };

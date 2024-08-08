@@ -115,22 +115,13 @@ export const resumeInterview = pgTable("resume_interview", {
   startTime: timestamp("start_time"),
   endTime: timestamp("end_time"),
   status: text("status").notNull(),
-  totalTopics: integer("total_topics").notNull().default(5),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const resumeTopic = pgTable("resume_topic", {
-  id: serial("id").primaryKey(),
-  interviewId: integer("interview_id").references(() => resumeInterview.id, { onDelete: "cascade" }),
-  topicName: varchar("topic_name", { length: 255 }).notNull(),
-  topicOrder: integer("topic_order").notNull(),
+  totalQuestions: integer("total_questions").notNull().default(5),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const resumeQuestion = pgTable("resume_question", {
   id: serial("id").primaryKey(),
   interviewId: integer("interview_id").references(() => resumeInterview.id, { onDelete: "cascade" }),
-  topicId: integer("topic_id").references(() => resumeTopic.id, { onDelete: "cascade" }),
   question: text("question").notNull(),
   questionOrder: integer("question_order").notNull(),
   createdAt: timestamp("created_at").defaultNow(),

@@ -23,6 +23,12 @@ export const env = createEnv({
     AZURE_INTERVIEW_ENDPOINT: z.string().min(1),
     AZRE_INTERVIEW_API_KEY: z.string().min(1),
     AZURE_INTERVIEW_DEPLOYMENT_NAME: z.string().min(1),
+
+    PG_HOST: z.string().min(1),
+    PG_PORT: z.string().min(1),
+    PG_USERNAME: z.string().min(1),
+    PG_PASSWORD: z.string().min(1),
+    PG_DATABASE: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),

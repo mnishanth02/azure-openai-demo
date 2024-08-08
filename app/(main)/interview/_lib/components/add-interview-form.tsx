@@ -43,7 +43,7 @@ const AddInterviewForm = ({}: Props) => {
           name="experence"
           control={control}
           defaultValue={defaultValues?.experence}
-          render={({ field }) => <Input type="number" {...field} placeholder="Ex. Full Stack Developer" className="" />}
+          render={({ field }) => <Input type="number" {...field} placeholder="Ex. 5" className="" />}
         />
       </div>
     </div>
