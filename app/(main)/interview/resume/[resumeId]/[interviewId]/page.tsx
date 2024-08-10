@@ -72,7 +72,7 @@ const ResumeInterviewStartPage = async ({ params }: PageProps) => {
   const { resumeId, interviewId } = params;
 
   const interviewData = await getInterviewData(+interviewId, +resumeId);
-  return <StartInterviewForm interviewData={interviewData} />;
+  return <StartInterviewForm interviewData={interviewData} resumeId={resumeId} interviewId={interviewId} />;
 };
 
 export default ResumeInterviewStartPage;

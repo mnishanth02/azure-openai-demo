@@ -81,7 +81,7 @@ export const useResumeInterviewStart = (initialData: InterviewData) => {
     mutationFn: ({ questionId, answer }) =>
       fetchNextQuestion({ answer, questionId, interviewId: interviewId as string, resumeId: resumeId as string }),
     onSuccess: (response) => {
-      console.log("Success Response ->>", JSON.stringify(response));
+      console.log("Success Response ->>", response);
 
       if (response.isLastQuestion) {
         setIsInterviewCompleted(true);

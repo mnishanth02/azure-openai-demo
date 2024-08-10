@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AzureKeyCredential, OpenAIClient } from "@azure/openai";
 import { ChatRequestMessage } from "@azure/openai/rest";
-import { and, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import {
@@ -204,11 +204,13 @@ export async function POST(request: NextRequest) {
       maxTokens: 500,
     });
 
-    const response = completions.choices[0].message?.content;
-    console.log("response->", JSON.stringify(response));
+    const response = completions.choices[0].message?.content as string;
+    const cleanResponse = response.replace("```json", "").replace("```", "");
+
+    console.log("cleanResponse->", JSON.stringify(cleanResponse));
 
     // Parse the response
-    const parsedResponse = JSON.parse(response as string);
+    const parsedResponse = JSON.parse(cleanResponse as string);
 
     // Update the answer with feedback and rating
     await db
@@ -247,6 +249,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         newQuestionId: newQuestion.id,
         currentQuestionNumber: currentQuestion.questionOrder + 1,
+        question: parsedResponse.question,
         isLastQuestion: currentQuestion.questionOrder + 1 === QUESTIONS_PER_INTERVIEW,
       });
     }

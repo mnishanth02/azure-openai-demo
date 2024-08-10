@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { Mic } from "lucide-react";
 import { Controller, FormProvider } from "react-hook-form";
 
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import Loader from "@/components/common/loader";
@@ -13,15 +15,18 @@ import { InterviewData, useResumeInterviewStart } from "./useResumeInterviewStar
 
 type Props = {
   interviewData: InterviewData;
+  resumeId: string;
+  interviewId: string;
 };
 
-export default function StartInterviewForm({ interviewData }: Props) {
+export default function StartInterviewForm({ interviewData, interviewId, resumeId }: Props) {
   const [isRecording, setIsRecording] = useState(false);
 
   const {
     methods,
     onHandleSubmit,
     isPending,
+    isInterviewCompleted,
     currentQuestionIndex,
     questions,
     navigateQuestion,
@@ -42,6 +47,7 @@ export default function StartInterviewForm({ interviewData }: Props) {
   }
 
   const currentQuestion = questions[currentQuestionIndex];
+  console.log("isInterviewCompleted->", isInterviewCompleted);
 
   return (
     <Card className="mx-auto mt-20 max-w-5xl">
@@ -87,9 +93,20 @@ export default function StartInterviewForm({ interviewData }: Props) {
                 />
 
                 <div className="flex items-center justify-between">
-                  <Button type="submit" disabled={isPending || !currentAnswer}>
-                    {isPending ? "Processing..." : "Submit & Next"}
-                  </Button>
+                  <div hidden={isInterviewCompleted}>
+                    <Button type="submit" disabled={isPending || !currentAnswer}>
+                      {isPending ? "Processing..." : "Submit & Next"}
+                    </Button>
+                  </div>
+                  {/* TODO: change the logic to false later */}
+                  <div hidden={isInterviewCompleted}>
+                    <Link
+                      href={`/interview/resume/${resumeId}/${interviewId}/feedback`}
+                      className={cn(buttonVariants())}
+                    >
+                      End Interview
+                    </Link>
+                  </div>
                   <Button
                     type="button"
                     variant={isRecording ? "destructive" : "default"}
