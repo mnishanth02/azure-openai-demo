@@ -14,7 +14,7 @@ const AssistantProvider: FC<AssistantProviderProps> = ({}) => {
   const { isPending, messages, message, onUploadAudio } = useAssistantForm();
   const [displaySettings, setDisplaySettings] = useState(false);
   return (
-    <div className="mx-auto mb-5 flex h-[calc(86vh)] max-w-4xl flex-col bg-secondary">
+    <div className="mx-auto mb-5 flex h-[calc(88vh)] max-w-4xl flex-col bg-secondary">
       <div className="self-end px-5 pt-4">
         <SettingsIcon
           onClick={() => setDisplaySettings(!displaySettings)}
