@@ -7,6 +7,8 @@ import ResumeInterviewSchedule from "./res-interv-schedule";
 
 interface ResumeListProps {}
 
+export const revalidate = 30;
+
 const ResumeList: FC<ResumeListProps> = async ({}) => {
   const getPersonalInfoWithSkills = async (): Promise<PersonalInfoWithSkills[]> => {
     return await db
